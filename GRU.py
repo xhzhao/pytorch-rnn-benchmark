@@ -21,9 +21,9 @@ for idx in range(len(sizes)):
   H = size[3]
   
   rnn = nn.GRU(D,H,1)
-  input = Variable(torch.randn(N, T, D))
-  h0 = Variable(torch.randn(1, T, H))
-  c0 = Variable(torch.randn(1, T, H))
+  input = Variable(torch.randn(T, N, D))
+  h0 = Variable(torch.randn(1, N, H))
+  c0 = Variable(torch.randn(1, N, H))
   output, hn = rnn(input, h0)
   
   start = time.time()

@@ -22,8 +22,8 @@ for idx in range(len(sizes)):
   
   rnn = nn.GRU(D,H,1).cuda()
   input = Variable(torch.randn( N, T, D).cuda())
-  h0 = Variable(torch.randn(1, T, H).cuda())
-  c0 = Variable(torch.randn(1, T, H).cuda())
+  h0 = Variable(torch.randn(1, N, H).cuda())
+  c0 = Variable(torch.randn(1, N, H).cuda())
   output, hn = rnn(input, h0)
   
   start = time.time()

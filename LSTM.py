@@ -58,14 +58,14 @@ for idx in range(len(sizes)):
   
     if cuda:
         rnn = nn.LSTM(D,H,1).cuda()
-        input = Variable(torch.randn(N, T, D).cuda())
-        h0 = Variable(torch.randn(1, T, H).cuda())
-        c0 = Variable(torch.randn(1, T, H).cuda())
+        input = Variable(torch.randn(T, N, D).cuda())
+        h0 = Variable(torch.randn(1, N, H).cuda())
+        c0 = Variable(torch.randn(1, N, H).cuda())
     else:
         rnn = nn.LSTM(D,H,1)
-        input = Variable(torch.randn(N, T, D))
-        h0 = Variable(torch.randn(1, T, H))
-        c0 = Variable(torch.randn(1, T, H))
+        input = Variable(torch.randn(T, N, D))
+        h0 = Variable(torch.randn(1, N, H))
+        c0 = Variable(torch.randn(1, N, H))
 
     output, hn = rnn(input, (h0, c0))
     if train:
