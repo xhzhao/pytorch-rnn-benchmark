@@ -76,10 +76,10 @@ for idx in range(len(sizes)):
         output, hn = rnn(input, (h0, c0))
         if train:
             if cuda:
-                targets = Variable(torch.randn(N,T,D).cuda())
+                targets = Variable(torch.randn(T,N,D).cuda())
                 loss_fn = loss_fn.cuda()
             else:
-                targets = Variable(torch.randn(N,T,D))
+                targets = Variable(torch.randn(T,N,D))
             loss = loss_fn(output,targets)
             loss.backward()
         if cuda:
