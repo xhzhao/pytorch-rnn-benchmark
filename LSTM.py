@@ -69,7 +69,7 @@ for idx in range(len(sizes)):
 
     output, hn = rnn(input, (h0, c0))
     if train:
-        loss_fn = nn.MSELoss().cuda()
+        loss_fn = nn.MSELoss()
 
     start = time.time()
     for j in range(count):
@@ -77,6 +77,7 @@ for idx in range(len(sizes)):
         if train:
             if cuda:
                 targets = Variable(torch.randn(N,T,D).cuda())
+                loss_fn = loss_fn.cuda()
             else:
                 targets = Variable(torch.randn(N,T,D))
             loss = loss_fn(output,targets)
