@@ -69,17 +69,18 @@ for idx in range(len(sizes)):
 
     output, hn = rnn(input, (h0, c0))
     if train:
-        loss_fn = nn.MSELoss()
+        loss_fn = torch.nn.L1Loss()
+
+    if cuda:
+        targets = Variable(torch.randn(T,N,D).cuda())
+        loss_fn = loss_fn.cuda()
+    else:
+        targets = Variable(torch.randn(T,N,D))
 
     start = time.time()
     for j in range(count):
         output, hn = rnn(input, (h0, c0))
         if train:
-            if cuda:
-                targets = Variable(torch.randn(T,N,D).cuda())
-                loss_fn = loss_fn.cuda()
-            else:
-                targets = Variable(torch.randn(T,N,D))
             loss = loss_fn(output,targets)
             loss.backward()
         if cuda:
