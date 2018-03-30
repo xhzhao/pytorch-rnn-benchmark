@@ -5,10 +5,13 @@ from torch.autograd import Variable
 import time
 import sys
 
+dry_run = 50
+num_iter = 100
 count = 20     # number of iterations
 cuda = False   # whether GPU is used or not
 train = False  # True: test training performance; False: test forward performance only
 daily = False
+
 if 'cuda' in sys.argv:
     cuda = True
 if 'train' in sys.argv:
@@ -77,15 +80,16 @@ for idx in range(len(sizes)):
     else:
         targets = Variable(torch.randn(T,N,D))
 
-    start = time.time()
-    for j in range(count):
+    for j in range(dry_run+num_iter):
+        if j == dry_run:
+            start = time.time()
         output, hn = rnn(input, (h0, c0))
         if train:
             loss = loss_fn(output,targets)
             loss.backward()
         if cuda:
             torch.cuda.synchronize()
-    dura = (time.time() - start)/count     # time of ONE iteration
+    dura = (time.time() - start)/num_iter     # time of ONE iteration
     gflops = T*4*(N*H*D*2 + N*H*H*2)/1e9
     GFLOPS = gflops/dura                   # giga floating-point operations per second
     SPS = N/dura                           # number of processed sentences per second
