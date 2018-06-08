@@ -74,11 +74,11 @@ for idx in range(len(sizes)):
     if train:
         loss_fn = torch.nn.L1Loss()
 
-    if cuda:
-        targets = Variable(torch.randn(T,N,D).cuda())
-        loss_fn = loss_fn.cuda()
-    else:
-        targets = Variable(torch.randn(T,N,D))
+        if cuda:
+            targets = Variable(torch.randn(T,N,D).cuda())
+            loss_fn = loss_fn.cuda()
+        else:
+            targets = Variable(torch.randn(T,N,D))
 
     for j in range(dry_run+num_iter):
         if j == dry_run:
