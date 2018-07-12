@@ -19,4 +19,4 @@ echo -e "### using KMP_BLOCKTIME=$KMP_BLOCKTIME\n"
 
 
 
-python irnn.py $1 $2 $3
+python irnn.py $1 $2 $3 $4

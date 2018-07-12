@@ -11,7 +11,8 @@ num_iter = 100  # perf count
 cuda = False  # whether GPU is used or not
 train = False  # True: training; False: inference
 daily = False  # test daily size (only 2 sizes)
-
+bd = False     # disable bidirectional
+D = 1
 
 if 'train' in sys.argv:
     train = True
@@ -26,9 +27,12 @@ if 'cuda' in sys.argv:
     irnn_enable = False
 if irnn_enable:
     import irnn_pytorch as irnn
+if 'bd' in sys.argv:
+    bd = True
+    D = 2
 
-print("### irnn = %s, model = %s, train = %s, cuda = %s" %
-      (irnn_enable, model, train, cuda))
+print("### irnn = %s, model = %s, train = %s, cuda = %s, D = %d" %
+      (irnn_enable, model, train, cuda, D))
 
 if daily:
     sizes = [
@@ -62,21 +66,21 @@ for idx in range(len(sizes)):
     size = sizes[idx]
     N = size[0]    # batch size
     T = size[1]    # sentence length
-    D = size[2]    # embedding size
+    I = size[2]    # embedding size
     H = size[3]    # hidden size
 
     if irnn_enable:
         if model == 'LSTM':
-            rnn = irnn.LSTM(D, H, 1)
+            rnn = irnn.LSTM(I, H, 1, bidirectional=bd)
         elif model == 'GRU':
-            rnn = irnn.GRU(D, H, 1)
+            rnn = irnn.GRU(I, H, 1, bidirectional=bd)
     else:
         if model == 'LSTM':
-            rnn = nn.LSTM(D, H, 1)
+            rnn = nn.LSTM(I, H, 1, bidirectional=bd)
         elif model == 'GRU':
-            rnn = nn.GRU(D, H, 1)
+            rnn = nn.GRU(I, H, 1, bidirectional=bd)
 
-    input = Variable(torch.randn(T, N, D))
+    input = Variable(torch.randn(T, N, I))
     if cuda:
         rnn = rnn.cuda()
         input = input.cuda()
@@ -84,7 +88,7 @@ for idx in range(len(sizes)):
     # print("rnn type = ",type(rnn))
     if train:
         rnn.train()
-        targets = Variable(torch.randn(T, N, D))
+        targets = Variable(torch.randn(T, N, I))
         if cuda:
             targets = targets.cuda()
     else:
@@ -93,15 +97,17 @@ for idx in range(len(sizes)):
     for j in range(dry_run + num_iter):
         if j == dry_run:
             start = time.time()
-        output, hn = rnn(input)
+        output, _ = rnn(input)
         if train:
             output.sum().backward()
         if cuda:
             torch.cuda.synchronize()
     dura = (time.time() - start) / num_iter     # time of ONE iteration
-    gflops = T * 4 * (N * H * D * 2 + N * H * H * 2) / 1e9
+    gflops = D * T * 4 * (N * H * I * 2 + N * H * H * 2) / 1e9
     GFLOPS = gflops / dura  # giga floating-point operations per second
     SPS = N / dura  # number of processed sentences per second
-    # print("size = %s, duration = %.4f, gflops = %.4f, GFLOPS = %.4f, SPS = \
-    #    + %.4f" %(size,dura,gflops,GFLOPS,SPS))
-    print("size = %s, SPS = %.4f" % (size, SPS))
+    #print("size = %s, duration = %.4f, gflops = %.4f, GFLOPS = %.4f, SPS = \
+    #%.4f" %(size,dura,gflops,GFLOPS,SPS))
+
+    print("size = %s, GFLOPS = %.4f, SPS = %.4f" % (size, GFLOPS, SPS))
+    #print("size = %s, SPS = %.4f" % (size, SPS))
