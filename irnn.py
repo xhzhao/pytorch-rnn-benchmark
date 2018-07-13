@@ -13,6 +13,7 @@ train = False  # True: training; False: inference
 daily = False  # test daily size (only 2 sizes)
 bd = False     # disable bidirectional
 D = 1
+Gate = 4
 
 if 'train' in sys.argv:
     train = True
@@ -20,6 +21,7 @@ if 'daily' in sys.argv:
     daily = True
 if 'gru' in sys.argv:
     model = 'GRU'
+    Gate = 3
 if 'nn' in sys.argv:
     irnn_enable = False
 if 'cuda' in sys.argv:
@@ -103,7 +105,7 @@ for idx in range(len(sizes)):
         if cuda:
             torch.cuda.synchronize()
     dura = (time.time() - start) / num_iter     # time of ONE iteration
-    gflops = D * T * 4 * (N * H * I * 2 + N * H * H * 2) / 1e9
+    gflops = D * T * Gate * (N * H * I * 2 + N * H * H * 2) / 1e9
     GFLOPS = gflops / dura  # giga floating-point operations per second
     SPS = N / dura  # number of processed sentences per second
     #print("size = %s, duration = %.4f, gflops = %.4f, GFLOPS = %.4f, SPS = \
