@@ -105,7 +105,7 @@ for idx in range(len(sizes)):
         if cuda:
             torch.cuda.synchronize()
     dura = (time.time() - start) / num_iter     # time of ONE iteration
-    gflops = D * T * Gate * (N * H * I * 2 + N * H * H * 2) / 1e9
+    gflops = D * T * Gate * (N * H * I * 2 + N * H * H * 2) * 3 / 1e9 #fwd_bwd
     GFLOPS = gflops / dura  # giga floating-point operations per second
     SPS = N / dura  # number of processed sentences per second
     #print("size = %s, duration = %.4f, gflops = %.4f, GFLOPS = %.4f, SPS = \
