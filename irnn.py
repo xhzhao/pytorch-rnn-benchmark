@@ -91,6 +91,7 @@ for idx in range(len(sizes)):
     if train:
         rnn.train()
         targets = Variable(torch.randn(T, N, I))
+        l1loss = torch.nn.L1Loss()
         if cuda:
             targets = targets.cuda()
     else:
@@ -101,7 +102,8 @@ for idx in range(len(sizes)):
             start = time.time()
         output, _ = rnn(input)
         if train:
-            output.sum().backward()
+            loss = l1loss(output, targets)
+            loss.backward()
         if cuda:
             torch.cuda.synchronize()
     dura = (time.time() - start) / num_iter     # time of ONE iteration
