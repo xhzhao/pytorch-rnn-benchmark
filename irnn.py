@@ -90,7 +90,7 @@ for idx in range(len(sizes)):
     # print("rnn type = ",type(rnn))
     if train:
         rnn.train()
-        targets = Variable(torch.randn(T, N, I))
+        targets = Variable(torch.randn(T, N, I * D))
         l1loss = torch.nn.L1Loss()
         if cuda:
             targets = targets.cuda()
