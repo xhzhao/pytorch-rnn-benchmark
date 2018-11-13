@@ -1,26 +1,24 @@
 #!/bin/sh
 
-t=$1
-lscpu
 which python
-export KMP_AFFINITY=compact,1,0,granularity=fine
 
-if [ $t == 'bdw' ]; then
-  export OMP_NUM_THREADS=44
-  python LSTM.py $2 $3
-fi
-if [ $t == 'knl' ]; then
-  export OMP_NUM_THREADS=68
-  python LSTM.py $2 $3
-fi
-if [ $t == 'knm' ]; then
-  export OMP_NUM_THREADS=72
-  python LSTM.py $2 $3
-fi
-if [ $t == 'skx' ]; then
-  export OMP_NUM_THREADS=56
-  python LSTM.py $2 $3
-fi
-if [ $t == 'gpu' ]; then
-  python LSTM.py $2 cuda $3
-fi
+CORES=`lscpu | grep Core | awk '{print $4}'`
+SOCKETS=`lscpu | grep Socket | awk '{print $2}'`
+TOTAL_CORES=`expr $CORES \* $SOCKETS`
+
+KMP_SETTING="KMP_AFFINITY=compact,1,0,granularity=fine"
+#KMP_BLOCKTIME=1
+#export MKL_DYNAMIC=TRUE
+
+export OMP_NUM_THREADS=$TOTAL_CORES
+export $KMP_SETTING
+#export KMP_BLOCKTIME=$KMP_BLOCKTIME
+
+echo -e "### using OMP_NUM_THREADS=$TOTAL_CORES"
+echo -e "### using $KMP_SETTING"
+#echo -e "### using KMP_BLOCKTIME=$KMP_BLOCKTIME\n"
+
+python LSTM.py $1 $2 $3
+
+#cpu example: ./run.sh train daily
+#cuda example: ./run.sh train daily cuda
