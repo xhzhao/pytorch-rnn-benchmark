@@ -79,18 +79,20 @@ for idx in range(len(sizes)):
             loss_fn = loss_fn.cuda()
         else:
             targets = Variable(torch.randn(T,N,D))
-
-    for j in range(dry_run+num_iter):
-        if j == dry_run:
-            start = time.time()
-        output, (hy , cy) = rnn(input, (h0, c0))
-        if train:
-            #loss = loss_fn(output,targets)
-            loss = output.sum() #+ hy.sum() + cy.sum()
-            loss.backward()
-        if cuda:
-            torch.cuda.synchronize()
+    #with torch.autograd.profiler.profile() as prof:
+    if True:
+        for j in range(dry_run+num_iter):
+            if j == dry_run:
+                start = time.time()
+            output, (hy , cy) = rnn(input, (h0, c0))
+            if train:
+                #loss = loss_fn(output,targets)
+                loss = output.sum() #+ hy.sum() + cy.sum()
+                loss.backward()
+            if cuda:
+                torch.cuda.synchronize()
     dura = (time.time() - start)/num_iter     # time of ONE iteration
+    #prof.export_chrome_trace("result.json")
     gflops = T*4*(N*H*D*2 + N*H*H*2)/1e9
     if train:
         gflops = gflops * 3
